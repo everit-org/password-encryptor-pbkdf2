@@ -33,7 +33,7 @@ import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.everit.osgi.password.encryptor.PasswordEncryptor;
+import org.everit.osgi.credential.encryptor.CredentialEncryptor;
 import org.everit.osgi.password.encryptor.pbkdf2.PBKDF2PasswordEncryptorConstants;
 import org.osgi.service.log.LogService;
 
@@ -43,7 +43,7 @@ import org.osgi.service.log.LogService;
         @Property(name = PBKDF2PasswordEncryptorConstants.PROP_LOG_SERVICE_TARGET)
 })
 @Service
-public class PBKDF2PasswordEncryptorComponent implements PasswordEncryptor {
+public class PBKDF2PasswordEncryptorComponent implements CredentialEncryptor {
 
     /**
      * Start separator character for the encrypted parts of the credential.
@@ -84,9 +84,22 @@ public class PBKDF2PasswordEncryptorComponent implements PasswordEncryptor {
     @Reference(bind = "setLogService")
     private LogService logService;
 
-    private String encryptCredentialSecure(final byte[] salt, final String plainCredential)
+    @Override
+    public String encryptCredential(final String plainPassword) {
+        Objects.requireNonNull(plainPassword, "plainPassword cannot be null");
+        try {
+            byte[] salt = generateSalt();
+            return encryptPasswordSecure(salt, plainPassword);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("Failed to encrypt password", e);
+        } catch (InvalidKeySpecException e) {
+            throw new IllegalStateException("Failed to encrypt password", e);
+        }
+    }
+
+    private String encryptPasswordSecure(final byte[] salt, final String plainPassword)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
-        KeySpec spec = new PBEKeySpec(plainCredential.toCharArray(), salt, ITERATIONS, DERIVED_KEY_LENGTH);
+        KeySpec spec = new PBEKeySpec(plainPassword.toCharArray(), salt, ITERATIONS, DERIVED_KEY_LENGTH);
         SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(SECURE_ALGORITHM);
         byte[] passwordDigest = secretKeyFactory.generateSecret(spec).getEncoded();
         byte[] passwordDigestBase64 = Base64.encodeBase64(passwordDigest);
@@ -96,19 +109,6 @@ public class PBKDF2PasswordEncryptorComponent implements PasswordEncryptor {
         return SEPARATOR_START + SECURE_ALGORITHM + SEPARATOR_END
                 + SEPARATOR_START + saltBase64StringUTF8 + SEPARATOR_END
                 + passwordDigestBase64StringUTF8;
-    }
-
-    @Override
-    public String encryptPassword(final String plainPassword) {
-        Objects.requireNonNull(plainPassword, "plainPassword cannot be null");
-        try {
-            byte[] salt = generateSalt();
-            return encryptCredentialSecure(salt, plainPassword);
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Failed to encrypt credential", e);
-        } catch (InvalidKeySpecException e) {
-            throw new IllegalStateException("Failed to encrypt credential", e);
-        }
     }
 
     private byte[] generateSalt() throws NoSuchAlgorithmException {
@@ -134,7 +134,7 @@ public class PBKDF2PasswordEncryptorComponent implements PasswordEncryptor {
     }
 
     @Override
-    public boolean matchPasswords(final String plainPassword, final String encryptedPassword) {
+    public boolean matchCredentials(final String plainPassword, final String encryptedPassword) {
         if ((plainPassword == null) || (encryptedPassword == null)) {
             return false;
         }
@@ -144,7 +144,7 @@ public class PBKDF2PasswordEncryptorComponent implements PasswordEncryptor {
             if (SECURE_ALGORITHM.equals(algorithm)) {
                 String saltBase64 = getSaltFromEncryptedCredential(encryptedPassword);
                 byte[] salt = Base64.decodeBase64(saltBase64);
-                encryptedAttemptedCredential = encryptCredentialSecure(salt, plainPassword);
+                encryptedAttemptedCredential = encryptPasswordSecure(salt, plainPassword);
             } else {
                 return false;
             }

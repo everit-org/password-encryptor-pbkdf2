@@ -22,8 +22,8 @@ import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.everit.osgi.credential.encryptor.CredentialEncryptor;
 import org.everit.osgi.dev.testrunner.TestRunnerConstants;
-import org.everit.osgi.password.encryptor.PasswordEncryptor;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,31 +37,31 @@ import org.junit.Test;
 @Service(value = PBKDF2PasswordEncryptorTestComponent.class)
 public class PBKDF2PasswordEncryptorTestComponent {
 
-    @Reference(bind = "setPasswordEncryptor")
-    private PasswordEncryptor passwordEncryptor;
+    @Reference(bind = "setCredentialEncryptor")
+    private CredentialEncryptor credentialEncryptor;
 
-    public void setPasswordEncryptor(final PasswordEncryptor passwordEncryptor) {
-        this.passwordEncryptor = passwordEncryptor;
+    public void setCredentialEncryptor(final CredentialEncryptor credentialEncryptor) {
+        this.credentialEncryptor = credentialEncryptor;
     }
 
     @Test
     public void testArgumentValidations() {
         try {
-            passwordEncryptor.encryptPassword(null);
+            credentialEncryptor.encryptCredential(null);
             Assert.fail();
         } catch (NullPointerException e) {
             Assert.assertEquals("plainPassword cannot be null", e.getMessage());
         }
-        Assert.assertFalse(passwordEncryptor.matchPasswords(null, null));
-        Assert.assertFalse(passwordEncryptor.matchPasswords("", null));
+        Assert.assertFalse(credentialEncryptor.matchCredentials(null, null));
+        Assert.assertFalse(credentialEncryptor.matchCredentials("", null));
     }
 
     @Test
     public void testCredentialEncryptionAndValidation() {
-        String encryptedCredential = passwordEncryptor.encryptPassword("foo");
+        String encryptedCredential = credentialEncryptor.encryptCredential("foo");
         Assert.assertNotNull(encryptedCredential);
-        Assert.assertTrue(passwordEncryptor.matchPasswords("foo", encryptedCredential));
-        Assert.assertFalse(passwordEncryptor.matchPasswords("bar", encryptedCredential));
+        Assert.assertTrue(credentialEncryptor.matchCredentials("foo", encryptedCredential));
+        Assert.assertFalse(credentialEncryptor.matchCredentials("bar", encryptedCredential));
     }
 
 }

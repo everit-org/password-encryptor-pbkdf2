@@ -16,10 +16,20 @@
  */
 package org.everit.osgi.password.encryptor.pbkdf2;
 
+/**
+ * Constants of the PBKDF2 Password Encryptor component.
+ */
 public final class PBKDF2PasswordEncryptorConstants {
 
+    /**
+     * The service factory PID of the PBKDF2 Password Encryptor component.
+     */
     public static final String SERVICE_FACTORYPID_CREDENTIAL_ENCRYPTOR = "org.everit.osgi.password.encryptor.pbkdf2.PBKDF2PasswordEncryptor";
 
+    /**
+     * The property name of the OSGi filter expression defining which LogService should be used by the PBKDF2 Password
+     * Encryptor component.
+     */
     public static final String PROP_LOG_SERVICE_TARGET = "logService.target";
 
     private PBKDF2PasswordEncryptorConstants() {
