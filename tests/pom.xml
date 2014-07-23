@@ -34,7 +34,7 @@
 
   <packaging>bundle</packaging>
 
-  <name>Everit - Password Encryptor PBKDF2</name>
+  <name>Everit - Password Encryptor PBKDF2 Tests</name>
   <description>Integration test project of the Password Encryptor PBKDF2</description>
 
   <properties>
