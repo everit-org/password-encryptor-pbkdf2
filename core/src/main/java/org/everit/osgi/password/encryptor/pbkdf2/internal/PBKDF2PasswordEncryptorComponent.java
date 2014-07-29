@@ -20,6 +20,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.crypto.SecretKeyFactory;
@@ -27,20 +28,45 @@ import javax.crypto.spec.PBEKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.PropertyOption;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.everit.osgi.credential.encryptor.CredentialEncryptor;
 import org.everit.osgi.credential.encryptor.CredentialMatcher;
 import org.everit.osgi.password.encryptor.pbkdf2.PBKDF2PasswordEncryptorConstants;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.log.LogService;
 
 @Component(name = PBKDF2PasswordEncryptorConstants.SERVICE_FACTORYPID_CREDENTIAL_ENCRYPTOR, metatype = true,
         configurationFactory = true, policy = ConfigurationPolicy.REQUIRE)
 @Properties({
+        @Property(name = PBKDF2PasswordEncryptorConstants.PROP_ALGORITHM,
+                value = PBKDF2PasswordEncryptorConstants.DEFAULT_ALGORITHM,
+                options = {
+                        @PropertyOption(
+                                value = PBKDF2PasswordEncryptorConstants.PROP_OPTION_ALGORITHM_PBKDF2_HMAC_SHA1,
+                                name = PBKDF2PasswordEncryptorConstants.OPTION_VALUE_ALGORITHM_PBKDF2_HMAC_SHA1),
+                        @PropertyOption(
+                                value = PBKDF2PasswordEncryptorConstants.PROP_OPTION_ALGORITHM_PBKDF2_HMAC_SHA224,
+                                name = PBKDF2PasswordEncryptorConstants.OPTION_VALUE_ALGORITHM_PBKDF2_HMAC_SHA224),
+                        @PropertyOption(
+                                value = PBKDF2PasswordEncryptorConstants.PROP_OPTION_ALGORITHM_PBKDF2_HMAC_SHA256,
+                                name = PBKDF2PasswordEncryptorConstants.OPTION_VALUE_ALGORITHM_PBKDF2_HMAC_SHA256),
+                        @PropertyOption(
+                                value = PBKDF2PasswordEncryptorConstants.PROP_OPTION_ALGORITHM_PBKDF2_HMAC_SHA384,
+                                name = PBKDF2PasswordEncryptorConstants.OPTION_VALUE_ALGORITHM_PBKDF2_HMAC_SHA384),
+                        @PropertyOption(
+                                value = PBKDF2PasswordEncryptorConstants.PROP_OPTION_ALGORITHM_PBKDF2_HMAC_SHA512,
+                                name = PBKDF2PasswordEncryptorConstants.OPTION_VALUE_ALGORITHM_PBKDF2_HMAC_SHA512)
+                }),
+        @Property(name = PBKDF2PasswordEncryptorConstants.PROP_ITERATION_COUNT,
+                intValue = PBKDF2PasswordEncryptorConstants.DEFAULT_ITERATION_COUNT),
         @Property(name = PBKDF2PasswordEncryptorConstants.PROP_LOG_SERVICE_TARGET)
 })
 @Service
@@ -62,22 +88,13 @@ public class PBKDF2PasswordEncryptorComponent implements CredentialEncryptor, Cr
     private static final String SALT_ALGORITHM = "SHA1PRNG";
 
     /**
-     * PBKDF2 with SHA-1 as the hashing algorithm. Note that the NIST specifically names SHA-1 as an acceptable hashing
-     * algorithm for PBKDF2
-     */
-    private static final String SECURE_ALGORITHM = "PBKDF2WithHmacSHA1";
-
-    /**
-     * SHA-1 generates 160 bit hashes, so that's what makes sense here.
-     * */
-    private static final int DERIVED_KEY_LENGTH = 160;
-
-    /**
      * Pick an iteration count that works for you. The NIST recommends at least 1,000 iterations:
      * http://csrc.nist.gov/publications/nistpubs/800-132/nist-sp800-132.pdf iOS 4.x reportedly uses 10,000:
      * http://blog.crackpassword.com/2010/09/smartphone-forensics-cracking-blackberry-backup-passwords/
      */
-    private static final int ITERATIONS = 20000;
+    private int iterationCount;
+
+    private String algorithm;
 
     /**
      * The {@link LogService}.
@@ -85,12 +102,28 @@ public class PBKDF2PasswordEncryptorComponent implements CredentialEncryptor, Cr
     @Reference(bind = "setLogService")
     private LogService logService;
 
+    @Activate
+    public void activate(final BundleContext context, final Map<String, Object> componentProperties)
+            throws Exception {
+        iterationCount = getIntProperty(componentProperties,
+                PBKDF2PasswordEncryptorConstants.PROP_ITERATION_COUNT, 1, Integer.MAX_VALUE);
+        algorithm = getStringProperty(componentProperties,
+                PBKDF2PasswordEncryptorConstants.PROP_ALGORITHM);
+        if (!PBKDF2PasswordEncryptorConstants.SUPPORTED_ALGORITHMS_AND_KEY_LENGTHS
+                .containsKey(algorithm)) {
+            throw new ConfigurationException(PBKDF2PasswordEncryptorConstants.PROP_ALGORITHM,
+                    "value [" + algorithm + "] is not supported, supported values are "
+                            + PBKDF2PasswordEncryptorConstants.SUPPORTED_ALGORITHMS_AND_KEY_LENGTHS.keySet().toString()
+                            + "");
+        }
+    }
+
     @Override
     public String encrypt(final String plainPassword) {
         Objects.requireNonNull(plainPassword, "plainPassword cannot be null");
         try {
             byte[] salt = generateSalt();
-            return encryptSecure(salt, plainPassword);
+            return encryptSecure(salt, plainPassword, algorithm);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Failed to encrypt password", e);
         } catch (InvalidKeySpecException e) {
@@ -98,16 +131,17 @@ public class PBKDF2PasswordEncryptorComponent implements CredentialEncryptor, Cr
         }
     }
 
-    private String encryptSecure(final byte[] salt, final String plainPassword)
+    private String encryptSecure(final byte[] salt, final String plainPassword, final String algorithm)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
-        KeySpec spec = new PBEKeySpec(plainPassword.toCharArray(), salt, ITERATIONS, DERIVED_KEY_LENGTH);
-        SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(SECURE_ALGORITHM);
+        int deriverdKeyLenght = PBKDF2PasswordEncryptorConstants.SUPPORTED_ALGORITHMS_AND_KEY_LENGTHS.get(algorithm);
+        KeySpec spec = new PBEKeySpec(plainPassword.toCharArray(), salt, iterationCount, deriverdKeyLenght);
+        SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(algorithm);
         byte[] passwordDigest = secretKeyFactory.generateSecret(spec).getEncoded();
         byte[] passwordDigestBase64 = Base64.encodeBase64(passwordDigest);
         String passwordDigestBase64StringUTF8 = StringUtils.newStringUtf8(passwordDigestBase64);
         byte[] saltBase64 = Base64.encodeBase64(salt);
         String saltBase64StringUTF8 = StringUtils.newStringUtf8(saltBase64);
-        return SEPARATOR_START + SECURE_ALGORITHM + SEPARATOR_END
+        return SEPARATOR_START + algorithm + SEPARATOR_END
                 + SEPARATOR_START + saltBase64StringUTF8 + SEPARATOR_END
                 + passwordDigestBase64StringUTF8;
     }
@@ -128,10 +162,34 @@ public class PBKDF2PasswordEncryptorComponent implements CredentialEncryptor, Cr
         return encryptedPassword.substring(beginIndex + 1, endIndex);
     }
 
+    private int getIntProperty(final Map<String, Object> componentProperties, final String propertyName,
+            final int minValue, final int maxValue)
+            throws ConfigurationException {
+        Object value = componentProperties.get(propertyName);
+        if ((value == null) || !(value instanceof Integer)) {
+            throw new ConfigurationException(propertyName, "property not defined or not an integer");
+        }
+        int intValue = ((Integer) value).intValue();
+        if ((intValue < minValue) || (intValue > maxValue)) {
+            throw new ConfigurationException(propertyName, "property value [" + intValue + "] must be between ["
+                    + minValue + "," + maxValue + "]");
+        }
+        return intValue;
+    }
+
     private String getSaltFromEncryptedCredential(final String encryptedPassword) {
         int beginIndex = encryptedPassword.lastIndexOf(SEPARATOR_START);
         int endIndex = encryptedPassword.lastIndexOf(SEPARATOR_END);
         return encryptedPassword.substring(beginIndex + 1, endIndex);
+    }
+
+    private String getStringProperty(final Map<String, Object> componentProperties, final String propertyName)
+            throws ConfigurationException {
+        Object value = componentProperties.get(propertyName);
+        if (value == null) {
+            throw new ConfigurationException(propertyName, "property not defined");
+        }
+        return String.valueOf(value);
     }
 
     @Override
@@ -142,13 +200,9 @@ public class PBKDF2PasswordEncryptorComponent implements CredentialEncryptor, Cr
         String encryptedAttemptedCredential = null;
         try {
             String algorithm = getAlgorithmFromEncryptedCredential(encryptedPassword);
-            if (SECURE_ALGORITHM.equals(algorithm)) {
-                String saltBase64 = getSaltFromEncryptedCredential(encryptedPassword);
-                byte[] salt = Base64.decodeBase64(saltBase64);
-                encryptedAttemptedCredential = encryptSecure(salt, plainPassword);
-            } else {
-                return false;
-            }
+            String saltBase64 = getSaltFromEncryptedCredential(encryptedPassword);
+            byte[] salt = Base64.decodeBase64(saltBase64);
+            encryptedAttemptedCredential = encryptSecure(salt, plainPassword, algorithm);
         } catch (Exception e) {
             logService.log(LogService.LOG_ERROR, "Credential check failed", e);
             return false;

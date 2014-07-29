@@ -57,7 +57,7 @@
             </Import-Package>
             <Export-Package>
             </Export-Package>
-            <EOSGi-TestNum>2</EOSGi-TestNum>
+            <EOSGi-TestNum>3</EOSGi-TestNum>
           </instructions>
         </configuration>
       </plugin>
