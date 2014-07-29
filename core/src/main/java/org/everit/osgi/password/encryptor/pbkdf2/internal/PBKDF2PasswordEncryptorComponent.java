@@ -34,6 +34,7 @@ import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.everit.osgi.credential.encryptor.CredentialEncryptor;
+import org.everit.osgi.credential.encryptor.CredentialMatcher;
 import org.everit.osgi.password.encryptor.pbkdf2.PBKDF2PasswordEncryptorConstants;
 import org.osgi.service.log.LogService;
 
@@ -43,7 +44,7 @@ import org.osgi.service.log.LogService;
         @Property(name = PBKDF2PasswordEncryptorConstants.PROP_LOG_SERVICE_TARGET)
 })
 @Service
-public class PBKDF2PasswordEncryptorComponent implements CredentialEncryptor {
+public class PBKDF2PasswordEncryptorComponent implements CredentialEncryptor, CredentialMatcher {
 
     /**
      * Start separator character for the encrypted parts of the credential.
@@ -85,11 +86,11 @@ public class PBKDF2PasswordEncryptorComponent implements CredentialEncryptor {
     private LogService logService;
 
     @Override
-    public String encryptCredential(final String plainPassword) {
+    public String encrypt(final String plainPassword) {
         Objects.requireNonNull(plainPassword, "plainPassword cannot be null");
         try {
             byte[] salt = generateSalt();
-            return encryptPasswordSecure(salt, plainPassword);
+            return encryptSecure(salt, plainPassword);
         } catch (NoSuchAlgorithmException e) {
             throw new IllegalStateException("Failed to encrypt password", e);
         } catch (InvalidKeySpecException e) {
@@ -97,7 +98,7 @@ public class PBKDF2PasswordEncryptorComponent implements CredentialEncryptor {
         }
     }
 
-    private String encryptPasswordSecure(final byte[] salt, final String plainPassword)
+    private String encryptSecure(final byte[] salt, final String plainPassword)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
         KeySpec spec = new PBEKeySpec(plainPassword.toCharArray(), salt, ITERATIONS, DERIVED_KEY_LENGTH);
         SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(SECURE_ALGORITHM);
@@ -134,7 +135,7 @@ public class PBKDF2PasswordEncryptorComponent implements CredentialEncryptor {
     }
 
     @Override
-    public boolean matchCredentials(final String plainPassword, final String encryptedPassword) {
+    public boolean match(final String plainPassword, final String encryptedPassword) {
         if ((plainPassword == null) || (encryptedPassword == null)) {
             return false;
         }
@@ -144,7 +145,7 @@ public class PBKDF2PasswordEncryptorComponent implements CredentialEncryptor {
             if (SECURE_ALGORITHM.equals(algorithm)) {
                 String saltBase64 = getSaltFromEncryptedCredential(encryptedPassword);
                 byte[] salt = Base64.decodeBase64(saltBase64);
-                encryptedAttemptedCredential = encryptPasswordSecure(salt, plainPassword);
+                encryptedAttemptedCredential = encryptSecure(salt, plainPassword);
             } else {
                 return false;
             }
