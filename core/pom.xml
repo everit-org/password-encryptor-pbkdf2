@@ -30,7 +30,7 @@
 
   <groupId>org.everit.osgi</groupId>
   <artifactId>org.everit.osgi.password.encryptor.pbkdf2</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
 
   <packaging>bundle</packaging>
 
@@ -135,7 +135,7 @@
     <dependency>
       <groupId>org.everit.osgi</groupId>
       <artifactId>org.everit.osgi.credential.encryptor.api</artifactId>
-      <version>1.0.0-SNAPSHOT</version>
+      <version>1.0.0</version>
     </dependency>
   </dependencies>
 
