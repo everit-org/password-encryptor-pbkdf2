@@ -1,11 +1,12 @@
 password-encryptor-pbkdf2
 =========================
 
-PBKDF2 based implementation of the Password Encryptor API.
+PBKDF2 based implementation of the [credential-encryptor-api][1].
 
-# Performance
+#Performance
 
-The performance tests were run on Java 8, Windows 8.1 64 bit, Intel Core i5-3210M @ 2.5GHz, 12GB RAM
+The performance tests were run on Java 8, Windows 8.1 64 bit, Intel Core 
+i5-3210M @ 2.5GHz, 12GB RAM
 
 Algorithm|Iteration|Encryption time
 ---|---:|---:
@@ -19,5 +20,10 @@ PBKDF2WithHmacSHA512|1000|3.2ms
 PBKDF2WithHmacSHA512|10000|32ms
 PBKDF2WithHmacSHA512|20000|64ms
 
-## Default configuration
-The default and recommended setting for encryption is PBKDF2WithHmacSHA256 with 100 iterations. This will be secure enough (SHA-250) and fast enough (iteration 100) to store and match passwords. The authentication process can be kept under 1 ms with this configuration.
+##Default configuration
+The default and recommended setting for encryption is PBKDF2WithHmacSHA256 with
+100 iterations. This will be secure enough (SHA-250) and fast enough (iteration
+100) to store and match passwords. The authentication process can be kept under
+1 ms with this configuration.
+
+[1]: https://github.com/everit-org/credential-encryptor-api
