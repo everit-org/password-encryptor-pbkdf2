@@ -3,8 +3,14 @@ password-encryptor-pbkdf2
 
 PBKDF2 based implementation of the [credential-encryptor-api][1].
 
-#Configuration
-##Algorithm
+#Component
+The module contains one Declarative Services component. The component can be 
+instantiated multiple times via Configuration Admin. The component registers 
+two OSGi services: the **CredentialEncryptor** and the **CredentialMatcher** 
+interfaces provided by the [credential-encryptor-api][1].
+
+##Configuration
+###Algorithm
 The following algorithms are supported by the OSGi component for password 
 encryption:
  - PBKDF2WithHmacSHA1 (since Java 1.6)
@@ -13,7 +19,7 @@ encryption:
  - PBKDF2WithHmacSHA384 (since Java 1.8)
  - PBKDF2WithHmacSHA512 (since Java 1.8)
 
-##Iteration
+###Iteration
 This value determines how slow the hash function will be. When computers 
 become faster next year we can increase the work factor to balance it out.
 Also known as work factor or security.
