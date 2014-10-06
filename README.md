@@ -50,5 +50,8 @@ The default and recommended setting for encryption is PBKDF2WithHmacSHA256 with
 #Reference
 [Secure Password Storage – Don’ts, dos and a Java example][2]
 
+[![Analytics](https://ga-beacon.appspot.com/UA-15041869-4/everit-org/password-encryptor-pbkdf2)](https://github.com/igrigorik/ga-beacon)
+
+
 [1]: https://github.com/everit-org/credential-encryptor-api
 [2]: http://www.javacodegeeks.com/2012/05/secure-password-storage-donts-dos-and.html
