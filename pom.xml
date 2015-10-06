@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    This file is part of Everit - Password Encryptor PBKDF2 Parnet.
+    Copyright (C) 2011 Everit Kft. (http://www.everit.biz)
 
-    Everit - Password Encryptor PBKDF2 Parnet is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Lesser General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
 
-    Everit - Password Encryptor PBKDF2 Parnet is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Lesser General Public License for more details.
+            http://www.apache.org/licenses/LICENSE-2.0
 
-    You should have received a copy of the GNU Lesser General Public License
-    along with Everit - Password Encryptor PBKDF2 Parnet.  If not, see <http://www.gnu.org/licenses/>.
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 
 -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
@@ -25,27 +25,93 @@
   <parent>
     <groupId>org.everit.config</groupId>
     <artifactId>org.everit.config.oss</artifactId>
-    <version>5.0.2</version>
+    <version>7.0.1</version>
   </parent>
 
-  <groupId>org.everit.osgi</groupId>
-  <artifactId>org.everit.osgi.password.encryptor.pbkdf2.parent</artifactId>
-  <version>1.0.0</version>
+  <groupId>org.everit.password</groupId>
+  <artifactId>org.everit.password.encryptor.pbkdf2</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
 
-  <packaging>pom</packaging>
+  <packaging>bundle</packaging>
 
-  <name>Everit - Password Encryptor PBKDF2 Parnet</name>
-  <description>The parent project of the Password Encryptor PBKDF2</description>
+  <name>Everit - Password Encryptor PBKDF2</name>
+  <description>PBKDF2 based implementation of the Password Encryptor API</description>
 
   <properties>
-    <maven.site.skip>true</maven.site.skip>
-    <maven.site.deploy.skip>true</maven.site.deploy.skip>
-    <maven.deploy.skip>true</maven.deploy.skip>
+    <projectpath>password-encryptor-pbkdf2</projectpath>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
   </properties>
 
-  <modules>
-    <module>core</module>
-    <module>tests</module>
-  </modules>
+  <scm>
+    <connection>scm:git:git://github.com/everit-org/${projectpath}.git</connection>
+    <developerConnection>scm:git:https://github.com/everit-org/${projectpath}.git</developerConnection>
+    <url>https://github.com/everit-org/${projectpath}</url>
+  </scm>
+
+  <url>http://everit.org</url>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/everit-org/${projectpath}/issues</url>
+  </issueManagement>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <name>Everit Team</name>
+    </developer>
+  </developers>
+
+  <organization>
+    <name>Everit Kft.</name>
+    <url>http://www.everit.biz</url>
+  </organization>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <extensions>true</extensions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+            <Import-Package>
+              *
+            </Import-Package>
+            <Export-Package>
+              org.everit.password.encryptor.pbkdf2
+            </Export-Package>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.9</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.12</version>
+    </dependency>
+    <dependency>
+      <groupId>org.everit.credential</groupId>
+      <artifactId>org.everit.credential.encryptor.api</artifactId>
+      <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
 
 </project>
