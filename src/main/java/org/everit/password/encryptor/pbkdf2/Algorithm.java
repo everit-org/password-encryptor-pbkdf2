@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.everit.osgi.password.encryptor.pbkdf2;
+package org.everit.password.encryptor.pbkdf2;
 
 import java.util.Collections;
 import java.util.HashMap;
