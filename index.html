@@ -1,0 +1,217 @@
+<!DOCTYPE HTML>
+<!--
+
+    Copyright (C) 2011 Everit Kft. (http://www.everit.org)
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<html>
+
+<head>
+<meta charset="utf-8">
+<title>Password Encryptor PBKDF2</title>
+<link rel="icon" type="image/ico" href="http://www.everit.org/fonts/favicon.ico">
+
+<!--    <link rel="stylesheet" type="text/css" href="common/css/base.css">-->
+<link href="http://www.everit.org/css/bootstrap.min.css" rel="stylesheet">
+<link href="http://www.everit.org/css/docs.min.css" rel="stylesheet">
+<link href="http://www.everit.org/css/everit.css" rel="stylesheet">
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push([ '_setAccount', 'UA-15041869-4' ]);
+  _gaq.push([ '_setDomainName', 'everit.org' ]);
+  _gaq.push([ '_trackPageview' ]);
+</script>
+</head>
+
+<body class="bs-docs-home" data-spy="scroll" data-target="#affix-nav">
+  <a class="sr-only" href="#content">Skip to main content</a>
+  <header class="navbar navbar-static-top bs-docs-nav" id="top" role="banner">
+    <div class="container">
+      <div class="navbar-header">
+        <button class="navbar-toggle" type="button" data-toggle="collapse"
+          data-target=".bs-navbar-collapse">
+          <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span
+            class="icon-bar"></span> <span class="icon-bar"></span>
+        </button>
+        <a href="#" class="navbar-brand">Index</a>
+      </div>
+      <nav class="collapse navbar-collapse bs-navbar-collapse" role="navigation">
+        <ul class="nav navbar-nav">
+          <li><a href="https://github.com/everit-org/password-encryptor-pbkdf2" target="_blank">Source</a></li>
+          <li><a href="http://www.everit.org/" target="_blank">Community</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="http://www.everit.biz" target="_blank">Enterprise</a></li>
+          <li><a href="http://everitorg.wordpress.com/" target="_blank">Blog</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="bs-docs-masthead everit-header" id="content" role="main">
+    <div class="container">
+      <span class="bs-docs-booticon bs-docs-booticon-lg bs-docs-booticon-outline"> <img
+        class="logo" src="http://www.everit.org/fonts/sbz_e.svg" alt="E">
+      </span>
+      <p class="lead">Password Encryptor PBKDF2</p>
+    </div>
+  </div>
+  <div class="container">
+    <div class="col-md-10">
+
+      <div class="bs-docs-featurette cookbook">
+        <h2 id="introduction" class="bs-docs-featurette-title">Introduction</h2>
+        <p>
+          PBKDF2 based implementation of the <a
+            href="https://github.com/everit-org/credential-encryptor-api">credential-encryptor-api</a>.
+        </p>
+      </div>
+      <hr class="featurette-divider">
+
+      <div class="bs-docs-featurette cookbook">
+        <h2 id="suported_algoritm" class="bs-docs-featurette-title">Suported Algoritm</h2>
+        <ul>
+          <li>PBKDF2WithHmacSHA1 (since Java 1.6)</li>
+          <li>PBKDF2WithHmacSHA224 (since Java 1.8)</li>
+          <li>PBKDF2WithHmacSHA256 (since Java 1.8)</li>
+          <li>PBKDF2WithHmacSHA384 (since Java 1.8)</li>
+          <li>PBKDF2WithHmacSHA512 (since Java 1.8)</li>
+        </ul>
+      </div>
+      <hr class="featurette-divider">
+
+      <div class="bs-docs-featurette cookbook">
+        <h2 id="performance" class="bs-docs-featurette-title">Performance</h2>
+        <p>The performance tests were run on Java 8, Windows 8.1 64 bit, Intel Core i5-3210M @
+          2.5GHz, 12GB RAM</p>
+        <table class="table table-bordered table-striped">
+          <thead>
+            <tr>
+              <th>Algorithm</th>
+              <th>Iteration</th>
+              <th>Encryption time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>PBKDF2WithHmacSHA1</td>
+              <td>1000</td>
+              <td>1.5 ms</td>
+            </tr>
+            <tr>
+              <td>PBKDF2WithHmacSHA1</td>
+              <td>10000</td>
+              <td>15 ms</td>
+            </tr>
+            <tr>
+              <td>PBKDF2WithHmacSHA1</td>
+              <td>20000</td>
+              <td>30 ms</td>
+            </tr>
+            <tr>
+              <td>PBKDF2WithHmacSHA256</td>
+              <td>1000</td>
+              <td>2.1ms</td>
+            </tr>
+            <tr>
+              <td>PBKDF2WithHmacSHA256</td>
+              <td>10000</td>
+              <td>21 ms</td>
+            </tr>
+            <tr>
+              <td>PBKDF2WithHmacSHA256</td>
+              <td>20000</td>
+              <td>42 ms</td>
+            </tr>
+            <tr>
+              <td>PBKDF2WithHmacSHA512</td>
+              <td>1000</td>
+              <td>3.2ms</td>
+            </tr>
+            <tr>
+              <td>PBKDF2WithHmacSHA512</td>
+              <td>10000</td>
+              <td>32ms</td>
+            </tr>
+            <tr>
+              <td>PBKDF2WithHmacSHA512</td>
+              <td>20000</td>
+              <td>64ms</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <hr class="featurette-divider">
+
+      <div class="bs-docs-featurette cookbook">
+        <h2 id="reference" class="bs-docs-featurette-title">Reference</h2>
+        <p>
+          <a href="http://www.javacodegeeks.com/2012/05/secure-password-storage-donts-dos-and.html">Secure
+            Password Storage – Don’ts, dos and a Java example</a>
+        </p>
+      </div>
+      <hr class="featurette-divider">
+    </div>
+
+    <!--        Affix-->
+    <div class="col-md-2 col-sm-0 col-xs-0">
+      <nav id="affix-nav">
+        <ul class="nav nav-pills nav-stacked everit-affix" data-spy="affix" data-offset-top="350"
+          data-offset-bottom="140">
+          <li class="active"><a href="#introduction">Introduction</a></li>
+          <li><a href="#suported_algoritm">Suported Algoritm</a></li>
+          <li><a href="#performance">Performance</a></li>
+          <li><a href="#reference">Reference</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <div></div>
+  <footer class="bs-docs-footer" role="contentinfo">
+    <div class="container">
+      <div class="bs-docs-social">
+        <ul class="bs-docs-social-buttons">
+          <li class="follow-btn "><a href="https://twitter.com/EveritOrg"
+            class="twitter-follow-button" data-show-count="true">Follow @EveritOrg</a></li>
+          <li class="tweet-btn"><a href="https://twitter.com/share"
+            class="twitter-share-button" data-url="http://www.everit.org/">Tweet</a></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap core JavaScript
+================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="http://www.everit.org/js/jquery-2.1.1.min.js"></script>
+  <script src="http://www.everit.org/js/bootstrap.min.js"></script>
+  <script src="http://www.everit.org/js/everit.js "></script>
+  <script type="text/javascript">
+      (function() {
+        var ga = document.createElement('script');
+        ga.type = 'text/javascript';
+        ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl'
+            : 'http://www')
+            + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(ga, s);
+      })();
+    </script>
+  <script src="http://www.everit.org/js/prettify/run_prettify.js"></script>
+</body>
+
+</html>
